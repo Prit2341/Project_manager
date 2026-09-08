@@ -446,20 +446,26 @@
       </div>
     </div>
 
-    <!-- Quick Prompt Pills -->
-    <div class="p-3 border-b border-outline-variant/40 dark:border-slate-800/80 bg-surface-container-low/40 dark:bg-slate-900/30 flex gap-2 overflow-x-auto text-[11px] shrink-0">
-      <button onclick="sendQuickPrompt('Add a high priority task on Alpha Redesign to review UX prototypes')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
-        + High Priority Task
-      </button>
-      <button onclick="sendQuickPrompt('What are the critical bottlenecks?')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
-        ⚠️ Bottlenecks
-      </button>
-      <button onclick="sendQuickPrompt('Mark task TSK-104 as Done')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
-        ✓ Complete TSK-104
-      </button>
-      <button onclick="sendQuickPrompt('Switch to dark mode')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
-        🌙 Dark Theme
-      </button>
+    <!-- Quick Prompt Suggestions -->
+    <div class="px-3 pt-2.5 pb-2 border-b border-outline-variant/40 dark:border-slate-800/80 bg-surface-container-low/40 dark:bg-slate-900/30 shrink-0">
+      <div class="flex items-center gap-1.5 mb-2 text-on-surface-variant/70 dark:text-slate-500">
+        <span class="material-symbols-outlined text-[13px]">bolt</span>
+        <span class="font-label-caps text-[10px] uppercase tracking-wider font-semibold">Quick Actions</span>
+      </div>
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5">
+        <button onclick="sendQuickPrompt('Add a high priority task on Alpha Redesign to review UX prototypes')" class="shrink-0 inline-flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-secondary/10 dark:bg-secondary/15 border border-secondary/20 dark:border-secondary/25 text-secondary dark:text-blue-300 text-[11px] font-semibold whitespace-nowrap hover:bg-secondary/20 dark:hover:bg-secondary/25 hover:border-secondary/40 transition-all active:scale-95">
+          <span class="material-symbols-outlined text-[14px]">add_task</span> High Priority Task
+        </button>
+        <button onclick="sendQuickPrompt('What are the critical bottlenecks?')" class="shrink-0 inline-flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/50 text-red-700 dark:text-red-300 text-[11px] font-semibold whitespace-nowrap hover:bg-red-100 dark:hover:bg-red-950/70 hover:border-red-300 dark:hover:border-red-700 transition-all active:scale-95">
+          <span class="material-symbols-outlined text-[14px]">warning</span> Bottlenecks
+        </button>
+        <button onclick="sendQuickPrompt('Mark task TSK-104 as Done')" class="shrink-0 inline-flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold whitespace-nowrap hover:bg-emerald-100 dark:hover:bg-emerald-950/70 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all active:scale-95">
+          <span class="material-symbols-outlined text-[14px]">task_alt</span> Complete TSK-104
+        </button>
+        <button onclick="sendQuickPrompt('Switch to dark mode')" class="shrink-0 inline-flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold whitespace-nowrap hover:bg-indigo-100 dark:hover:bg-indigo-950/70 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all active:scale-95">
+          <span class="material-symbols-outlined text-[14px]">dark_mode</span> Dark Theme
+        </button>
+      </div>
     </div>
 
     <!-- Messages Container -->
