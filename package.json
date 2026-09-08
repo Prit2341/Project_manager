@@ -1,0 +1,26 @@
+{
+  "name": "project-central-desktop",
+  "version": "1.0.0",
+  "description": "ProjectCentral - Enterprise Project Progress & Task Management Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "keywords": [
+    "project-management",
+    "electron",
+    "dashboard",
+    "stitch"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "pg": "^8.23.0",
+    "sql.js": "^1.14.2"
+  }
+}

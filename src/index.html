@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProjectCentral - Enterprise Desktop</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hanken+Grotesk:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  
+  <!-- Custom Electron Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Tailwind Custom Config matching Stitch Design Tokens -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0f172a",
+            "on-primary": "#ffffff",
+            "primary-container": "#131b2e",
+            "on-primary-container": "#7c839b",
+            "secondary": "#0058be",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#2170e4",
+            "on-secondary-container": "#fefcff",
+            "tertiary": "#10b981",
+            "on-tertiary": "#ffffff",
+            "tertiary-container": "#002113",
+            "on-tertiary-container": "#009668",
+            "surface": "#f8f9ff",
+            "surface-dim": "#cbdbf5",
+            "surface-bright": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e5eeff",
+            "surface-container-high": "#dce9ff",
+            "surface-container-highest": "#d3e4fe",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#45464d",
+            "inverse-surface": "#1e293b",
+            "inverse-on-surface": "#f1f5f9",
+            "outline": "#76777d",
+            "outline-variant": "#cbd5e1",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "background": "#f8f9ff"
+          },
+          fontFamily: {
+            "display-lg": ["Hanken Grotesk", "sans-serif"],
+            "headline-md": ["Hanken Grotesk", "sans-serif"],
+            "headline-sm": ["Hanken Grotesk", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"],
+            "label-caps": ["Inter", "sans-serif"],
+            "data-mono": ["JetBrains Mono", "monospace"]
+          },
+          spacing: {
+            "gutter": "20px"
+          }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-background dark:bg-[#0b1320] text-on-surface dark:text-[#f1f5f9] antialiased flex flex-col h-screen overflow-hidden">
+
+  <!-- Desktop Frameless Top Title Bar -->
+  <div class="h-10 bg-surface-container-lowest dark:bg-[#0f172a] border-b border-outline-variant/60 dark:border-slate-800 flex items-center justify-between px-3 window-drag-region select-none z-50">
+    <!-- Brand Logo in Titlebar -->
+    <div class="flex items-center gap-2 no-drag">
+      <div class="w-5 h-5 rounded bg-primary dark:bg-secondary flex items-center justify-center text-white text-xs">
+        <span class="material-symbols-outlined text-[14px]">rocket_launch</span>
+      </div>
+      <span class="font-headline-sm text-xs font-bold tracking-tight text-primary dark:text-white">ProjectCentral</span>
+      <span class="text-[10px] px-1.5 py-0.2 rounded bg-surface-container-low dark:bg-slate-800 text-on-surface-variant font-mono">v1.0.0</span>
+    </div>
+
+    <!-- Window Title Center -->
+    <div class="text-[11px] font-medium text-on-surface-variant dark:text-slate-400 hidden sm:block">
+      Enterprise Project & Sprint Command Center
+    </div>
+
+    <!-- Window Controls -->
+    <div class="flex items-center no-drag">
+      <button id="win-min-btn" class="win-btn" title="Minimize">
+        <span class="material-symbols-outlined text-[16px]">remove</span>
+      </button>
+      <button id="win-max-btn" class="win-btn" title="Maximize">
+        <span class="material-symbols-outlined text-[15px]">check_box_outline_blank</span>
+      </button>
+      <button id="win-close-btn" class="win-btn win-btn-close" title="Close">
+        <span class="material-symbols-outlined text-[16px]">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main App Shell (Sidebar + Content Viewport) -->
+  <div class="flex flex-1 overflow-hidden">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-60 bg-surface dark:bg-[#0f172a] border-r border-outline-variant/60 dark:border-slate-800 flex flex-col justify-between p-4 select-none shrink-0">
+      <div>
+        <!-- Workspace Switcher / Header -->
+        <div class="flex items-center justify-between p-2 mb-6 rounded-lg bg-surface-container-low dark:bg-slate-800/60 border border-outline-variant/50 dark:border-slate-700/60">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded bg-secondary text-white flex items-center justify-center font-bold text-xs">
+              PC
+            </div>
+            <div>
+              <div class="font-headline-sm text-xs font-bold text-on-surface dark:text-white">Global Workspace</div>
+              <div class="text-[10px] text-on-surface-variant dark:text-slate-400">Enterprise Plan</div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">unfold_more</span>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="space-y-1">
+          <a href="#" data-tab="dashboard" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-body-sm font-semibold transition-colors">
+            <span class="material-symbols-outlined text-[20px]">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="#" data-tab="projects" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-body-sm font-semibold transition-colors">
+            <span class="material-symbols-outlined text-[20px]">folder_shared</span>
+            <span>Projects</span>
+          </a>
+
+          <a href="#" data-tab="tasks" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-body-sm font-semibold transition-colors">
+            <span class="material-symbols-outlined text-[20px]">assignment</span>
+            <span>Tasks</span>
+          </a>
+
+          <a href="#" data-tab="analysis" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-body-sm font-semibold transition-colors">
+            <span class="material-symbols-outlined text-[20px]">insights</span>
+            <span>Reporting & Analysis</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Bottom System Actions -->
+      <div class="pt-4 border-t border-outline-variant/60 dark:border-slate-800 space-y-1">
+        <button id="theme-toggle-btn" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-body-sm text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors">
+          <span id="theme-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
+          <span>Toggle Theme</span>
+        </button>
+
+        <a href="#" onclick="alert('ProjectCentral Desktop v1.0.0 (Connected to Stitch Cloud)'); return false;" class="flex items-center gap-3 px-3 py-2 rounded-lg text-body-sm text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors">
+          <span class="material-symbols-outlined text-[20px]">settings</span>
+          <span>Settings</span>
+        </a>
+
+        <!-- Database Connection Status -->
+        <div id="db-status-badge" class="mt-3 px-3 py-2 rounded bg-surface-container-low dark:bg-slate-800/60 text-[11px] text-on-surface-variant flex items-center gap-2 border border-outline-variant/40 dark:border-slate-700/60">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <div class="truncate">
+            <div class="font-medium text-emerald-700 dark:text-emerald-300">PostgreSQL 17</div>
+            <div class="text-[9px] text-slate-500 truncate">Connecting...</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport Area -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-background dark:bg-[#0b1320]">
+      
+      <!-- Top Operational Toolbar -->
+      <header class="h-14 bg-surface-container-lowest dark:bg-[#0f172a] border-b border-outline-variant/60 dark:border-slate-800 flex items-center justify-between px-6 shrink-0 z-30">
+        <!-- Search bar -->
+        <div class="flex items-center bg-surface-container-low dark:bg-slate-800/80 rounded-lg px-3 py-1.5 w-72 border border-outline-variant/60 dark:border-slate-700 focus-within:border-secondary transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px] mr-2">search</span>
+          <input id="global-search-input" type="text" placeholder="Quick search..." class="bg-transparent border-none outline-none font-body-sm text-xs w-full text-on-surface dark:text-white placeholder:text-on-surface-variant focus:ring-0 p-0">
+        </div>
+
+        <!-- Trailing Actions & Profile -->
+        <div class="flex items-center gap-2.5">
+          <!-- AI Copilot Button -->
+          <button onclick="toggleAiDrawer()" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-body-sm text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02] cursor-pointer">
+            <span class="material-symbols-outlined text-[16px] text-amber-300">auto_awesome</span>
+            <span>AI Copilot</span>
+            <span class="text-[9px] bg-white/20 px-1 rounded font-mono hidden sm:inline">Ctrl+J</span>
+          </button>
+
+          <button onclick="openNewTaskModal()" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary dark:bg-slate-800 dark:hover:bg-slate-700 font-body-sm text-xs font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            <span>Task</span>
+          </button>
+
+          <button onclick="openNewProjectModal()" class="px-3 py-1.5 rounded-lg border border-outline-variant hover:border-primary text-primary dark:text-white font-body-sm text-xs font-semibold hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">folder_open</span>
+            <span>Project</span>
+          </button>
+
+          <div class="h-5 w-[1px] bg-outline-variant/60 dark:bg-slate-700 mx-1"></div>
+
+          <button class="p-1.5 text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-slate-800 rounded-full transition-colors relative" title="Notifications">
+            <span class="material-symbols-outlined text-[20px]">notifications</span>
+            <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary"></span>
+          </button>
+
+          <!-- User Avatar -->
+          <div class="flex items-center gap-2 pl-2 cursor-pointer">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" alt="Sarah Chen" class="w-7 h-7 rounded-full object-cover border border-outline-variant">
+            <div class="hidden md:block text-left">
+              <div class="text-xs font-semibold text-on-surface dark:text-white leading-tight">Sarah Chen</div>
+              <div class="text-[10px] text-on-surface-variant leading-tight">Product Lead</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Tab Content Container -->
+      <div class="flex-1 overflow-y-auto p-6 md:p-8">
+        <div class="max-w-7xl mx-auto">
+          <!-- Dashboard Tab Pane -->
+          <div id="tab-dashboard" class="tab-pane active">
+            <div id="dashboard-content"></div>
+          </div>
+
+          <!-- Projects Tab Pane -->
+          <div id="tab-projects" class="tab-pane">
+            <div id="projects-content"></div>
+          </div>
+
+          <!-- Tasks Tab Pane -->
+          <div id="tab-tasks" class="tab-pane">
+            <div id="tasks-content"></div>
+          </div>
+
+          <!-- Analysis Tab Pane -->
+          <div id="tab-analysis" class="tab-pane">
+            <div id="analysis-content"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Task Modal (Create & Edit Mode) -->
+  <div id="new-task-modal" onclick="if(event.target === this) closeNewTaskModal()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-surface-container-lowest dark:bg-[#1e293b] border border-outline-variant/80 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl modal-content-animated">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="task-modal-title" class="font-headline-sm text-lg font-bold text-on-surface dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary">add_task</span>
+          Create New Task
+        </h3>
+        <button onclick="closeNewTaskModal()" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container-low dark:hover:bg-slate-700">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <form id="new-task-form" class="space-y-4">
+        <input type="hidden" id="task-edit-id" value="">
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Target Project</label>
+          <select id="task-project-input" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+            <!-- Populated dynamically via openNewTaskModal() -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Task Title</label>
+          <input id="task-title-input" required type="text" placeholder="e.g. Implement OAuth handshake" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Description</label>
+          <textarea id="task-desc-input" rows="3" placeholder="Context, requirements, and deliverables..." class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Priority</label>
+            <select id="task-priority-input" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+              <option value="Critical">Critical</option>
+              <option value="High" selected>High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Status</label>
+            <select id="task-status-input" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+              <option value="Todo" selected>To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Assignee</label>
+          <select id="task-assignee-input" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+            <option value="Sarah Chen">Sarah Chen (Product Lead)</option>
+            <option value="Alex Rivera">Alex Rivera (Senior Fullstack)</option>
+            <option value="David Kim">David Kim (DevOps Lead)</option>
+            <option value="Elena Rostova">Elena Rostova (SecOps)</option>
+            <option value="Marcus Vance">Marcus Vance (UI/UX Designer)</option>
+            <option value="Priya Patel">Priya Patel (Data Platform)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-outline-variant/60 dark:border-slate-700">
+          <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 text-xs font-semibold text-on-surface-variant hover:text-on-surface">Cancel</button>
+          <button id="task-modal-submit-btn" type="submit" class="px-5 py-2 bg-primary text-on-primary dark:bg-secondary rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity">Add Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Project Modal (Create & Edit Mode) -->
+  <div id="new-project-modal" onclick="if(event.target === this) closeNewProjectModal()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-surface-container-lowest dark:bg-[#1e293b] border border-outline-variant/80 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl modal-content-animated">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="project-modal-title" class="font-headline-sm text-lg font-bold text-on-surface dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary">create_new_folder</span>
+          Create New Project
+        </h3>
+        <button onclick="closeNewProjectModal()" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container-low dark:hover:bg-slate-700">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <form id="new-project-form" class="space-y-4">
+        <input type="hidden" id="project-edit-id" value="">
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Project Name</label>
+          <input id="project-title-input" required type="text" placeholder="e.g. NextGen Microservices Platform" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Category</label>
+          <input id="project-category-input" required type="text" placeholder="e.g. Platform Engineering" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Project Scope</label>
+          <textarea id="project-desc-input" rows="3" placeholder="Strategic goals, deliverables, and timeline..." class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Allocated Budget</label>
+            <input id="project-budget-input" type="text" placeholder="$45,000" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Status</label>
+            <select id="project-status-input" class="w-full px-3 py-2 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg text-sm focus:border-secondary outline-none text-on-surface dark:text-white">
+              <option value="In Progress" selected>In Progress</option>
+              <option value="Review">Review</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Progress</label>
+            <span id="project-progress-val" class="text-xs font-bold text-secondary font-mono">0%</span>
+          </div>
+          <input id="project-progress-input" type="range" min="0" max="100" value="0" oninput="document.getElementById('project-progress-val').textContent = this.value + '%'" class="w-full h-2 bg-surface-container-high dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-secondary">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-outline-variant/60 dark:border-slate-700">
+          <button type="button" onclick="closeNewProjectModal()" class="px-4 py-2 text-xs font-semibold text-on-surface-variant hover:text-on-surface">Cancel</button>
+          <button id="project-modal-submit-btn" type="submit" class="px-5 py-2 bg-primary text-on-primary dark:bg-secondary rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Glassmorphic Confirmation Modal -->
+  <div id="app-confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-surface-container-lowest dark:bg-[#1e293b] border border-outline-variant/80 dark:border-slate-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl modal-content-animated text-center">
+      <div id="confirm-modal-icon-wrap" class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-400 mx-auto flex items-center justify-center mb-4">
+        <span id="confirm-modal-icon" class="material-symbols-outlined text-[28px]">delete_forever</span>
+      </div>
+      <h3 id="confirm-modal-title" class="font-headline-sm text-base font-bold text-on-surface dark:text-white mb-2">Are you sure?</h3>
+      <p id="confirm-modal-message" class="text-xs text-on-surface-variant dark:text-slate-400 leading-relaxed mb-6">This action cannot be undone.</p>
+      <div class="flex items-center justify-center gap-3">
+        <button id="confirm-modal-cancel" class="flex-1 px-4 py-2 rounded-lg border border-outline-variant dark:border-slate-700 text-xs font-semibold text-on-surface dark:text-slate-200 hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors">
+          Cancel
+        </button>
+        <button id="confirm-modal-action" class="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-sm transition-colors">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Chart Tooltip -->
+  <div id="chart-tooltip" class="px-3 py-1.5 rounded-lg bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[11px] font-semibold shadow-2xl backdrop-blur-md border border-slate-700/50 dark:border-slate-200/50">
+    <div id="chart-tooltip-title" class="font-bold"></div>
+    <div id="chart-tooltip-sub" class="text-[10px] opacity-80"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="app-toast" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 shadow-2xl backdrop-blur-md border border-slate-700/50 dark:border-slate-200/50 text-xs font-semibold">
+    <span id="toast-icon" class="material-symbols-outlined text-[18px] text-emerald-400 dark:text-emerald-600">check_circle</span>
+    <span id="toast-message">Action completed</span>
+  </div>
+
+  <!-- Slide-out AI Assistant Drawer -->
+  <div id="ai-chat-backdrop" onclick="toggleAiDrawer()" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+  
+  <aside id="ai-chat-drawer" class="fixed right-0 top-10 bottom-0 w-full sm:w-[420px] bg-surface-container-lowest dark:bg-[#0f172a] border-l border-outline-variant/60 dark:border-slate-800 shadow-2xl z-50 flex flex-col ai-drawer-enter">
+    <!-- Drawer Header -->
+    <div class="h-14 px-4 border-b border-outline-variant/60 dark:border-slate-800 flex items-center justify-between shrink-0 bg-surface/50 dark:bg-slate-900/50">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm">
+          <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-headline-sm text-xs font-bold text-on-surface dark:text-white">AI Copilot</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          </div>
+          <div class="text-[10px] text-on-surface-variant dark:text-slate-400 font-mono flex items-center gap-1">
+            <span id="ai-model-label">Qwen 2.5 1.5B (Local)</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-1">
+        <button onclick="clearChatHistory()" class="p-1.5 text-on-surface-variant hover:text-on-surface dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" title="Clear chat">
+          <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+        </button>
+        <button onclick="toggleAiDrawer()" class="p-1.5 text-on-surface-variant hover:text-on-surface dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" title="Close">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Prompt Pills -->
+    <div class="p-3 border-b border-outline-variant/40 dark:border-slate-800/80 bg-surface-container-low/40 dark:bg-slate-900/30 flex gap-2 overflow-x-auto text-[11px] shrink-0">
+      <button onclick="sendQuickPrompt('Add a high priority task on Alpha Redesign to review UX prototypes')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
+        + High Priority Task
+      </button>
+      <button onclick="sendQuickPrompt('What are the critical bottlenecks?')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
+        ⚠️ Bottlenecks
+      </button>
+      <button onclick="sendQuickPrompt('Mark task TSK-104 as Done')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
+        ✓ Complete TSK-104
+      </button>
+      <button onclick="sendQuickPrompt('Switch to dark mode')" class="px-2.5 py-1 rounded-full bg-surface dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface dark:text-slate-300 hover:border-secondary whitespace-nowrap transition-colors">
+        🌙 Dark Theme
+      </button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="ai-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
+      <!-- Initial Welcome Message -->
+      <div class="flex items-start gap-2.5">
+        <div class="w-6 h-6 rounded bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shrink-0 text-[14px]">
+          <span class="material-symbols-outlined text-[14px]">smart_toy</span>
+        </div>
+        <div class="bg-surface-container-low dark:bg-slate-800/80 p-3 rounded-2xl rounded-tl-sm border border-outline-variant/50 dark:border-slate-700 text-on-surface dark:text-slate-200 max-w-[85%] space-y-1.5">
+          <p class="font-semibold text-primary dark:text-blue-400">Hi! I'm your ProjectCentral Copilot.</p>
+          <p class="text-on-surface-variant dark:text-slate-400">
+            Tell me what to do in natural language and I'll execute it directly on your PostgreSQL database:
+          </p>
+          <ul class="list-disc pl-4 space-y-1 text-on-surface-variant dark:text-slate-400">
+            <li><em>"Add a task on Alpha Redesign with high priority to build user onboarding flow"</em></li>
+            <li><em>"Mark TSK-104 as done"</em></li>
+            <li><em>"Create project DevOps Migration with $60k budget"</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Indicator (Hidden by default) -->
+    <div id="ai-typing-indicator" class="px-4 py-2 hidden items-center gap-2 text-xs text-on-surface-variant dark:text-slate-400">
+      <div class="flex items-center gap-1 bg-surface-container-low dark:bg-slate-800 px-3 py-1.5 rounded-full border border-outline-variant/40 dark:border-slate-700">
+        <span class="w-1.5 h-1.5 rounded-full bg-secondary typing-dot"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-secondary typing-dot"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-secondary typing-dot"></span>
+        <span class="ml-1.5 text-[11px]">Executing...</span>
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <div class="p-3 border-t border-outline-variant/60 dark:border-slate-800 bg-surface dark:bg-[#0f172a] shrink-0">
+      <form id="ai-chat-form" class="flex items-center gap-2">
+        <input id="ai-chat-input" type="text" autocomplete="off" placeholder="Instruct AI... (e.g. add task on project with priority)" class="flex-1 bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-on-surface dark:text-white focus:border-secondary outline-none transition-colors">
+        <button type="submit" class="w-9 h-9 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white flex items-center justify-center shadow-sm shrink-0 transition-all hover:scale-105 active:scale-95">
+          <span class="material-symbols-outlined text-[18px]">send</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Floating AI Trigger Button (Bottom Right) -->
+  <button id="ai-fab-btn" onclick="toggleAiDrawer()" class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl flex items-center justify-center z-40 transition-all hover:scale-110 active:scale-95 group" title="Open AI Copilot (Ctrl+J)">
+    <span class="material-symbols-outlined text-[24px] text-amber-300 group-hover:rotate-12 transition-transform">auto_awesome</span>
+  </button>
+
+  <!-- Main JavaScript Controller -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tasks - ProjectCentral</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#2170e4",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#131b2e",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary-fixed": "#001a42",
+                      "surface-dim": "#cbdbf5",
+                      "on-surface-variant": "#45464d",
+                      "primary-fixed": "#dae2fd",
+                      "on-secondary-container": "#fefcff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "on-tertiary-container": "#009668",
+                      "tertiary-fixed": "#6ffbbe",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#7c839b",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-secondary-fixed-variant": "#004395",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#002113",
+                      "inverse-primary": "#bec6e0",
+                      "inverse-on-surface": "#eaf1ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "outline": "#76777d",
+                      "inverse-surface": "#213145",
+                      "secondary": "#0058be",
+                      "surface-container-low": "#eff4ff",
+                      "tertiary-container": "#002113",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#131b2e",
+                      "background": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "surface-container": "#e5eeff",
+                      "tertiary": "#000000",
+                      "primary": "#000000",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "outline-variant": "#c6c6cd",
+                      "surface-bright": "#f8f9ff",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "surface": "#f8f9ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "unit": "4px",
+                      "gutter": "24px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+      </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- Mobile TopNavBar -->
+<nav class="md:hidden bg-surface-container-lowest flex items-center justify-between px-margin-desktop w-full sticky top-0 z-40 h-16 shadow-[0_1px_2px_rgba(15,23,26,0.04)]">
+<div class="font-headline-md text-headline-md font-bold text-primary">ProjectCentral</div>
+<div class="flex items-center gap-4">
+<button class="text-secondary cursor-pointer transition-all duration-200 active:scale-95"><span class="material-symbols-outlined">search</span></button>
+<button class="text-secondary cursor-pointer transition-all duration-200 active:scale-95"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-secondary cursor-pointer transition-all duration-200 active:scale-95"><span class="material-symbols-outlined">help</span></button>
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A small circular user avatar showing a professional portrait of a person against a neutral light grey background, representing the currently logged in user in the minimal corporate dashboard interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbk8BZy-t1IbVWObW4u0kyluC0aReo4QO4SxGwSngx2-kz4qux2WnOOGQFRfnI7q-jffkcdvdnsdaYPxpTec4bms94oNxTzxxQG3kTf_y67aiEzxCb8xZvTJ1YvEDBq4RyAeSWinyj6BiMoIOMQe7rKhRQG4sN-AVXR8Er0j9OfGNjEwFFsCT67ZMxpZ9qmDOzAnrxQUW4_OSQg57eOrlI4Ejo-JN7a_EYoJQmnDbUFfRwVDbnb71Zjw"/>
+</div>
+</nav>
+<!-- Desktop SideNavBar -->
+<aside class="hidden md:flex flex-col h-full bg-surface py-6 px-4 w-60 h-screen fixed left-0 top-0 shadow-[1px_0_2px_rgba(15,23,26,0.04)] z-50">
+<div class="mb-8 px-2">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+<div class="w-6 h-6 bg-secondary text-white rounded-sm flex items-center justify-center font-bold text-sm">P</div>
+                ProjectCentral
+            </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Enterprise Tier</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded" href="#">
+<span class="material-symbols-outlined">folder_shared</span>
+                Projects
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary font-bold bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined fill">assignment</span>
+                Tasks
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded" href="#">
+<span class="material-symbols-outlined">group</span>
+                Team
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Reporting
+            </a>
+</nav>
+<div class="mt-auto pt-6 space-y-1 border-t border-outline-variant/30">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                Support
+            </a>
+<button class="mt-4 w-full bg-surface-container border border-secondary text-secondary font-body-sm text-body-sm py-2 rounded hover:bg-surface-container-low transition-colors">
+                Invite Member
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 md:ml-60 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Header & Filters -->
+<header class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary mb-1">Tasks</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Manage and track your action items across all projects.</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">filter_list</span>
+<select class="pl-9 pr-8 py-1.5 bg-surface-container-lowest border border-outline-variant rounded text-body-sm font-body-sm focus:border-secondary focus:ring-0 appearance-none text-on-surface">
+<option>All Statuses</option>
+<option>To Do</option>
+<option>In Progress</option>
+<option>Review</option>
+<option>Done</option>
+</select>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">folder</span>
+<select class="pl-9 pr-8 py-1.5 bg-surface-container-lowest border border-outline-variant rounded text-body-sm font-body-sm focus:border-secondary focus:ring-0 appearance-none text-on-surface">
+<option>All Projects</option>
+<option>Project Alpha</option>
+<option>Website Refresh</option>
+<option>Q4 Marketing</option>
+</select>
+</div>
+<button class="bg-primary text-on-primary px-4 py-1.5 rounded font-body-sm text-body-sm flex items-center gap-2 hover:bg-on-surface transition-colors">
+<span class="material-symbols-outlined text-sm">add</span> New Task
+                </button>
+</div>
+</header>
+<!-- Task Groups -->
+<div class="space-y-8">
+<!-- Project Alpha Tasks -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded shadow-[0_2px_4px_rgba(15,23,26,0.04)] overflow-hidden">
+<header class="px-6 py-4 bg-surface-container/30 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">folder_open</span>
+                        Project Alpha Tasks
+                    </h3>
+<span class="bg-surface-container border border-outline-variant text-on-surface font-label-caps text-label-caps px-2 py-0.5 rounded-full">4 Tasks</span>
+</header>
+<div class="divide-y divide-outline-variant/50">
+<!-- Task Row 1 -->
+<div class="px-6 py-3 flex items-center gap-4 hover:bg-surface-bright transition-colors group">
+<input class="w-4 h-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface truncate group-hover:text-secondary transition-colors cursor-pointer">Finalize Q3 Budget Report</p>
+</div>
+<div class="flex items-center gap-4 text-right shrink-0">
+<span class="bg-error-container text-on-error-container font-label-caps text-label-caps px-2 py-0.5 rounded-full whitespace-nowrap">High</span>
+<span class="font-data-mono text-data-mono text-error flex items-center gap-1 whitespace-nowrap"><span class="material-symbols-outlined text-[14px]">calendar_today</span> Oct 12</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded whitespace-nowrap hidden sm:inline-block">Finance</span>
+</div>
+</div>
+<!-- Task Row 2 -->
+<div class="px-6 py-3 flex items-center gap-4 hover:bg-surface-bright transition-colors group">
+<input class="w-4 h-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface truncate group-hover:text-secondary transition-colors cursor-pointer">Review Design Mockups for Portal</p>
+</div>
+<div class="flex items-center gap-4 text-right shrink-0">
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-0.5 rounded-full whitespace-nowrap">Medium</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant flex items-center gap-1 whitespace-nowrap"><span class="material-symbols-outlined text-[14px]">calendar_today</span> Oct 15</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded whitespace-nowrap hidden sm:inline-block">Design</span>
+</div>
+</div>
+<!-- Task Row 3 (Completed) -->
+<div class="px-6 py-3 flex items-center gap-4 bg-surface-container-lowest/50 opacity-60">
+<input checked="" class="w-4 h-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface-variant line-through truncate">Initial Client Kickoff Call</p>
+</div>
+<div class="flex items-center gap-4 text-right shrink-0">
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-0.5 rounded-full whitespace-nowrap">Low</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant flex items-center gap-1 whitespace-nowrap"><span class="material-symbols-outlined text-[14px]">check_circle</span> Done</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded whitespace-nowrap hidden sm:inline-block">Mgmt</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Website Refresh Tasks -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded shadow-[0_2px_4px_rgba(15,23,26,0.04)] overflow-hidden">
+<header class="px-6 py-4 bg-surface-container/30 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">language</span>
+                        Website Refresh Tasks
+                    </h3>
+<span class="bg-surface-container border border-outline-variant text-on-surface font-label-caps text-label-caps px-2 py-0.5 rounded-full">3 Tasks</span>
+</header>
+<div class="divide-y divide-outline-variant/50">
+<!-- Task Row 1 -->
+<div class="px-6 py-3 flex items-center gap-4 hover:bg-surface-bright transition-colors group">
+<input class="w-4 h-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface truncate group-hover:text-secondary transition-colors cursor-pointer">Optimize Hero Images for WebP</p>
+</div>
+<div class="flex items-center gap-4 text-right shrink-0">
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-0.5 rounded-full whitespace-nowrap">Medium</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant flex items-center gap-1 whitespace-nowrap"><span class="material-symbols-outlined text-[14px]">calendar_today</span> Oct 18</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded whitespace-nowrap hidden sm:inline-block">Dev</span>
+</div>
+</div>
+<!-- Task Row 2 -->
+<div class="px-6 py-3 flex items-center gap-4 hover:bg-surface-bright transition-colors group">
+<input class="w-4 h-4 rounded-sm border-outline-variant text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface truncate group-hover:text-secondary transition-colors cursor-pointer">Write Copy for About Us Page</p>
+</div>
+<div class="flex items-center gap-4 text-right shrink-0">
+<span class="bg-error-container text-on-error-container font-label-caps text-label-caps px-2 py-0.5 rounded-full whitespace-nowrap">High</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant flex items-center gap-1 whitespace-nowrap"><span class="material-symbols-outlined text-[14px]">calendar_today</span> Oct 20</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded whitespace-nowrap hidden sm:inline-block">Content</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Bottom NavBar Navigation (Suppressed per rules as this is a sub-page equivalent structure often requiring full context, but maintaining responsive bottom nav if deemed top level for 'Tasks') -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant flex justify-around py-3 z-40 shadow-[0_-1px_4px_rgba(15,23,26,0.05)]">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-label-caps text-label-caps">Dash</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">folder_shared</span>
+<span class="font-label-caps text-label-caps">Proj</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary font-bold" href="#">
+<span class="material-symbols-outlined text-xl fill">assignment</span>
+<span class="font-label-caps text-label-caps">Tasks</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+<span class="font-label-caps text-label-caps">Team</span>
+</a>
+</nav>
+</body></html>
