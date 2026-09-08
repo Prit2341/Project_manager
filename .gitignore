@@ -49,3 +49,12 @@ ehthumbs.db
 tmp/
 *.sqlite
 *.db-journal
+# Added by code-review-graph
+.code-review-graph/
+
+# AI Coding Assistants & Knowledge Graph configs
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.claude/
+.mcp.json
