@@ -81,8 +81,10 @@ function classifyIntent(prompt) {
   const p = prompt.trim();
   const lower = p.toLowerCase();
 
-  // 1. Greetings
-  if (/^(hi|hello|hey|good\s+(morning|afternoon|evening)|howdy|sup)[\s!.,?]*$/i.test(lower)) {
+  // 1. Greetings (allow short trailing pleasantries like "hi there" but not
+  // longer sentences that merely start with a greeting word)
+  const wordCount = lower.split(/\s+/).filter(Boolean).length;
+  if (wordCount <= 4 && /^(hi|hello|hey|good\s+(morning|afternoon|evening)|howdy|sup)\b/i.test(lower)) {
     return 'GREETING';
   }
 
@@ -163,6 +165,11 @@ function classifyIntent(prompt) {
   if (/^(what|how|why|which|who|when|where|is there|are there|list|show)\b/i.test(lower)) {
     return 'DATABASE_QUERY';
   }
+  // Messages that reference a specific task/project ID or ask "about"/"info on"
+  // something, without an explicit action verb, are also data questions.
+  if (/\b(tsk|prj)-\d+\b/i.test(lower) || /\b(tell me about|info(rmation)?\s+on|status of)\b/i.test(lower)) {
+    return 'DATABASE_QUERY';
+  }
 
   // 8. General Conversational / Advice
   return 'GENERAL_CONVERSATION';
@@ -172,6 +179,19 @@ function classifyIntent(prompt) {
  * Execute Direct Actions Deterministically
  */
 async function executeAction(intent, prompt, dbData) {
+  try {
+    return await executeActionInner(intent, prompt, dbData);
+  } catch (err) {
+    console.error('executeAction failed:', err);
+    return {
+      action: 'error',
+      data: {},
+      reply: `I ran into a problem completing that action (${err.message}). Please check that PostgreSQL is running and try again.`
+    };
+  }
+}
+
+async function executeActionInner(intent, prompt, dbData) {
   const p = prompt.trim();
   const lower = p.toLowerCase();
   const projects = dbData.projects || [];
@@ -232,34 +252,68 @@ async function executeAction(intent, prompt, dbData) {
   }
 
   if (intent === 'ACTION_UPDATE_TASK') {
-    const statusMatch = lower.match(/\b(mark|set|update)\s+(task\s+)?(tsk-\d+)\s+(as|to)?\s*(done|complete|completed|in progress|todo|to do)\b/i);
-    if (statusMatch) {
-      const taskId = statusMatch[3].toUpperCase();
-      let statusRaw = statusMatch[5].toLowerCase();
-      let newStatus = 'In Progress';
-      if (statusRaw.includes('done') || statusRaw.includes('complete')) newStatus = 'Done';
-      if (statusRaw.includes('todo') || statusRaw.includes('to do')) newStatus = 'Todo';
-
-      await db.updateTaskStatus(taskId, newStatus);
+    const idMatch = lower.match(/\btsk-\d+\b/i);
+    if (!idMatch) {
       return {
-        action: 'updated_task',
-        data: { id: taskId, status: newStatus },
-        reply: `Task **${taskId}** has been marked as **${newStatus}** in PostgreSQL.`
+        action: 'info',
+        data: {},
+        reply: `I couldn't find a task ID in that request. Try something like *"mark TSK-104 as Done"*.`
       };
     }
+    const taskId = idMatch[0].toUpperCase();
+    const exists = tasks.some(t => t.id === taskId);
+
+    let newStatus = null;
+    if (/\b(done|complete|completed|finish(ed)?)\b/i.test(lower)) newStatus = 'Done';
+    else if (/\bin\s*-?\s*progress\b/i.test(lower)) newStatus = 'In Progress';
+    else if (/\b(todo|to[\s-]?do|backlog)\b/i.test(lower)) newStatus = 'Todo';
+
+    if (!newStatus) {
+      return {
+        action: 'info',
+        data: { id: taskId },
+        reply: `I found task **${taskId}** but couldn't tell which status you want. Try *"mark ${taskId} as Done / In Progress / Todo"*.`
+      };
+    }
+    if (!exists) {
+      return {
+        action: 'info',
+        data: { id: taskId },
+        reply: `I couldn't find task **${taskId}** in the current sprint data. It may have already been deleted or the ID is off.`
+      };
+    }
+
+    await db.updateTaskStatus(taskId, newStatus);
+    return {
+      action: 'updated_task',
+      data: { id: taskId, status: newStatus },
+      reply: `Task **${taskId}** has been marked as **${newStatus}** in PostgreSQL.`
+    };
   }
 
   if (intent === 'ACTION_DELETE_TASK') {
-    const deleteMatch = lower.match(/\b(delete|remove)\s+(task\s+)?(tsk-\d+)\b/i);
-    if (deleteMatch) {
-      const taskId = deleteMatch[3].toUpperCase();
-      await db.deleteTask(taskId);
+    const idMatch = lower.match(/\btsk-\d+\b/i);
+    if (!idMatch) {
       return {
-        action: 'deleted_task',
-        data: { id: taskId },
-        reply: `Deleted task **${taskId}** from PostgreSQL.`
+        action: 'info',
+        data: {},
+        reply: `I couldn't find a task ID in that request. Try something like *"delete TSK-104"*.`
       };
     }
+    const taskId = idMatch[0].toUpperCase();
+    if (!tasks.some(t => t.id === taskId)) {
+      return {
+        action: 'info',
+        data: { id: taskId },
+        reply: `I couldn't find task **${taskId}** in the current sprint data — nothing to delete.`
+      };
+    }
+    await db.deleteTask(taskId);
+    return {
+      action: 'deleted_task',
+      data: { id: taskId },
+      reply: `Deleted task **${taskId}** from PostgreSQL.`
+    };
   }
 
   if (intent === 'ACTION_CREATE_TASK') {
@@ -407,12 +461,82 @@ async function callQwenLlm(systemPrompt, userPrompt, history = []) {
 }
 
 /**
+ * Deterministic data-driven answers for common questions, used whenever the
+ * local LLM is unavailable so the copilot still gives a useful reply instead
+ * of a generic "I'm here to help" fallback.
+ */
+function answerFromData(prompt, dbData) {
+  const lower = prompt.trim().toLowerCase();
+  const projects = dbData.projects || [];
+  const tasks = dbData.tasks || [];
+
+  if (/\b(how many|number of|count of)\b.*\bprojects?\b/i.test(lower)) {
+    return `You currently have **${projects.length} project(s)** in PostgreSQL${projects.length ? ': ' + projects.map(p => p.title).join(', ') : ''}.`;
+  }
+
+  if (/\b(how many|number of|count of)\b.*\btasks?\b/i.test(lower)) {
+    const done = tasks.filter(t => t.status === 'Done').length;
+    const inProgress = tasks.filter(t => t.status === 'In Progress').length;
+    const todo = tasks.filter(t => t.status === 'Todo').length;
+    return `You have **${tasks.length} task(s)** total — ${done} Done, ${inProgress} In Progress, ${todo} Todo.`;
+  }
+
+  const idMatch = lower.match(/\b(tsk|prj)-\d+\b/i);
+  if (idMatch) {
+    const id = idMatch[0].toUpperCase();
+    const task = tasks.find(t => t.id === id);
+    if (task) return `Task **${task.id}** "${task.title}" is currently **${task.status}** (priority: ${task.priority}, assignee: ${task.assignee}).`;
+    const project = projects.find(p => p.id === id);
+    if (project) return `Project **${project.id}** "${project.title}" is **${project.status}**, ${project.progress}% complete, due ${project.dueDate}.`;
+    return `I couldn't find **${id}** in the current PostgreSQL data.`;
+  }
+
+  const assigneeMatch = tasks
+    .map(t => t.assignee)
+    .filter(Boolean)
+    .find(name => lower.includes(name.toLowerCase()));
+  if (assigneeMatch) {
+    const theirTasks = tasks.filter(t => t.assignee === assigneeMatch);
+    if (!theirTasks.length) return `**${assigneeMatch}** has no assigned tasks right now.`;
+    return `**${assigneeMatch}** is assigned to ${theirTasks.length} task(s):\n` +
+      theirTasks.map(t => `- **${t.id}**: ${t.title} (${t.status})`).join('\n');
+  }
+
+  if (/\b(list|show)\b.*\bprojects?\b|\bwhat\s+projects?\s+do\s+we\s+have\b/i.test(lower)) {
+    if (!projects.length) return 'There are no projects in PostgreSQL yet.';
+    return `Here are your projects:\n` + projects.map(p => `- **${p.id}**: ${p.title} (${p.status}, ${p.progress}%)`).join('\n');
+  }
+
+  if (/\b(list|show)\b.*\btasks?\b|\bwhat\s+tasks?\s+do\s+we\s+have\b/i.test(lower)) {
+    if (!tasks.length) return 'There are no tasks in PostgreSQL yet.';
+    return `Here are your tasks:\n` + tasks.slice(0, 15).map(t => `- **${t.id}**: ${t.title} (${t.status}, ${t.priority}, ${t.assignee})`).join('\n');
+  }
+
+  return null;
+}
+
+/**
  * Main AI Agent Message Processor
  */
 async function processUserMessage(userPrompt, history = []) {
-  const dbData = await db.getAllData();
+  let dbData = { projects: [], tasks: [], settings: {} };
+  let dbError = null;
+  try {
+    dbData = await db.getAllData();
+  } catch (err) {
+    dbError = err;
+  }
   const status = await getAgentStatus();
   const intent = classifyIntent(userPrompt);
+
+  // DB-dependent intents need a clear diagnostic instead of a silent generic reply
+  if (dbError && (intent.startsWith('ACTION_') || intent === 'DATABASE_QUERY' || intent === 'QUERY_BOTTLENECKS')) {
+    return {
+      reply: `I can't reach the PostgreSQL database right now (*${dbError.message}*). Please check that PostgreSQL is running and try again.`,
+      action: 'db_error',
+      model: 'ProjectCentral Copilot'
+    };
+  }
 
   // 1. Greetings
   if (intent === 'GREETING') {
@@ -455,8 +579,16 @@ All actions are saved directly to your **PostgreSQL** database!`,
 
   // 3. Critical Bottlenecks Query
   if (intent === 'QUERY_BOTTLENECKS') {
-    const criticals = (dbData.tasks || []).filter(t => t.priority === 'Critical' || t.status !== 'Done');
-    const overdue = criticals.filter(t => t.priority === 'Critical');
+    // Only unfinished Critical-priority tasks count as active bottlenecks —
+    // a Done task, however critical, is no longer blocking anything.
+    const overdue = (dbData.tasks || []).filter(t => t.priority === 'Critical' && t.status !== 'Done');
+    if (overdue.length === 0) {
+      return {
+        reply: `✅ **No active critical bottlenecks.** All critical-priority tasks are currently Done.`,
+        action: 'info',
+        model: 'ProjectCentral Copilot'
+      };
+    }
     return {
       reply: `Found **${overdue.length} critical priority tasks** in PostgreSQL:\n\n` +
         overdue.slice(0, 4).map(t => `- **${t.id}**: ${t.title} (*${t.status}*, assigned to ${t.assignee})`).join('\n') +
@@ -480,8 +612,9 @@ All actions are saved directly to your **PostgreSQL** database!`,
   }
 
   // 5. Database Queries & Questions (handled by Qwen with real DB context)
-  if (intent === 'DATABASE_QUERY' && status.online && status.installed) {
-    const systemPrompt = `You are ProjectCentral AI Copilot. Answer questions accurately based on this project data:
+  if (intent === 'DATABASE_QUERY') {
+    if (status.online && status.installed) {
+      const systemPrompt = `You are ProjectCentral AI Copilot. Answer questions accurately based on this project data:
 Projects (${dbData.projects.length}): ${JSON.stringify(dbData.projects.map(p => ({ id: p.id, title: p.title, status: p.status, progress: p.progress, budget: p.budget, lead: p.lead })))}
 Tasks (${dbData.tasks.length}): ${JSON.stringify(dbData.tasks.map(t => ({ id: t.id, project_id: t.projectId, title: t.title, priority: t.priority, status: t.status, assignee: t.assignee })))}
 
@@ -490,12 +623,19 @@ Rules:
 - Format with markdown bullet points.
 - Do NOT perform any database creation or deletion. Answer the question directly.`;
 
-    const llmReply = await callQwenLlm(systemPrompt, userPrompt, history);
-    if (llmReply) {
-      return {
-        reply: llmReply,
-        model: 'Qwen 2.5 1.5B (Ollama Local)'
-      };
+      const llmReply = await callQwenLlm(systemPrompt, userPrompt, history);
+      if (llmReply) {
+        return {
+          reply: llmReply,
+          model: 'Qwen 2.5 1.5B (Ollama Local)'
+        };
+      }
+    }
+
+    // Ollama offline/unavailable or returned nothing — answer directly from PostgreSQL data
+    const directAnswer = answerFromData(userPrompt, dbData);
+    if (directAnswer) {
+      return { reply: directAnswer, action: 'info', model: 'ProjectCentral Copilot (Offline Data Engine)' };
     }
   }
 
@@ -511,6 +651,12 @@ Provide insightful, structured, and practical advice on project management, agil
         model: 'Qwen 2.5 1.5B (Ollama Local)'
       };
     }
+  }
+
+  // 6b. Last-resort direct data lookup, in case classification missed a question-shaped message
+  const fallbackAnswer = answerFromData(userPrompt, dbData);
+  if (fallbackAnswer) {
+    return { reply: fallbackAnswer, action: 'info', model: 'ProjectCentral Copilot (Offline Data Engine)' };
   }
 
   // 7. General Fallback
